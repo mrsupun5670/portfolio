@@ -119,11 +119,14 @@ const EXPERIENCE_DATA = [{
 // --- COMPONENTS ---
 export function Portfolio() {
   const [activeFilter, setActiveFilter] = useState('All');
+  const [activeSection, setActiveSection] = useState('home');
+  
   // Typewriter Effect State
   const [text, setText] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
   const toRotate = 'Supun Gunasinghe';
   const [delta, setDelta] = useState(150);
+  
   useEffect(() => {
     let ticker = setInterval(() => {
       tick();
@@ -132,6 +135,7 @@ export function Portfolio() {
       clearInterval(ticker);
     };
   }, [text, delta]);
+  
   const tick = () => {
     let fullText = toRotate;
     let updatedText = isDeleting ? fullText.substring(0, text.length - 1) : fullText.substring(0, text.length + 1);
@@ -149,6 +153,30 @@ export function Portfolio() {
       setDelta(150); // Normal typing speed
     }
   };
+
+  // Active Section Tracking
+  useEffect(() => {
+    const handleScroll = () => {
+      const sections = ['home', 'about', 'projects', 'skills', 'experience', 'contact'];
+      const scrollPosition = window.scrollY + 100;
+
+      for (const section of sections) {
+        const element = document.getElementById(section);
+        if (element) {
+          const offsetTop = element.offsetTop;
+          const offsetBottom = offsetTop + element.offsetHeight;
+          
+          if (scrollPosition >= offsetTop && scrollPosition < offsetBottom) {
+            setActiveSection(section);
+            break;
+          }
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Contact Form State
   const formRef = useRef<HTMLFormElement>(null);
@@ -224,7 +252,11 @@ export function Portfolio() {
             </span>
           </div>
           <div className="hidden md:flex gap-8 text-sm font-medium text-gray-300">
-            {['About', 'Projects', 'Skills', 'Experience', 'Contact'].map(item => <a key={item} href={`#${item.toLowerCase()}`} className="hover:text-cyan-400 transition-colors">
+            {['About', 'Projects', 'Skills', 'Experience', 'Contact'].map(item => <a 
+                key={item} 
+                href={`#${item.toLowerCase()}`} 
+                className={`hover:text-cyan-400 transition-colors ${activeSection === item.toLowerCase() ? 'text-cyan-400 font-bold' : ''}`}
+              >
                   {item}
                 </a>)}
           </div>
@@ -345,6 +377,47 @@ export function Portfolio() {
           </div>
         </section>
 
+        {/* Vision & Mission Section */}
+        <section className="py-24 px-4">
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-4xl font-bold mb-16 text-center animate-on-scroll">
+              Vision & <span className="text-cyan-400">Mission</span>
+            </h2>
+            
+            <div className="grid md:grid-cols-2 gap-8">
+              <GlassCard className="p-8 animate-on-scroll animate-delay-1" tiltEffect>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-3 rounded-full bg-cyan-500/20">
+                    <Globe className="w-6 h-6 text-cyan-400" />
+                  </div>
+                  <h3 className="text-2xl font-bold">Vision</h3>
+                </div>
+                <p className="text-gray-400 leading-relaxed">
+                  To build software that makes a real difference. I want to create tools 
+                  that help businesses grow and make people's work easier. Whether it's 
+                  a small shop or a growing company, good software should be accessible 
+                  to everyone.
+                </p>
+              </GlassCard>
+
+              <GlassCard className="p-8 animate-on-scroll animate-delay-2" tiltEffect>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-3 rounded-full bg-purple-500/20">
+                    <Terminal className="w-6 h-6 text-purple-400" />
+                  </div>
+                  <h3 className="text-2xl font-bold">Mission</h3>
+                </div>
+                <p className="text-gray-400 leading-relaxed">
+                  Keep learning, keep building. I focus on writing clean code, designing 
+                  intuitive interfaces, and delivering projects that actually work. My goal 
+                  is to help clients succeed with reliable, well-built solutions that solve 
+                  their specific problems.
+                </p>
+              </GlassCard>
+            </div>
+          </div>
+        </section>
+
         {/* Projects Section */}
         <section id="projects" className="py-24 px-4 bg-black/20">
           <div className="max-w-7xl mx-auto">
@@ -365,7 +438,7 @@ export function Portfolio() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredProjects.map((project, idx) => <GlassCard key={idx} tiltEffect className="flex flex-col h-full group">
+              {filteredProjects.map((project, idx) => <GlassCard key={idx} tiltEffect className={`flex flex-col h-full group animate-on-scroll animate-delay-${Math.min(idx % 4 + 1, 4)}`}>
                   <div className="h-48 bg-gradient-to-br from-gray-900 to-black relative overflow-hidden group">
                     {/* Placeholder for project image */}
                     <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1000&auto=format&fit=crop')] bg-cover bg-center opacity-40 group-hover:scale-110 transition-transform duration-700" />
